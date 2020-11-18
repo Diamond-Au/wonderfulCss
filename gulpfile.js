@@ -31,24 +31,6 @@ function sassT() {
     .pipe(gulp.dest('./dist/'));
 }
 
-// 监视jsx文件，并且完成了编译
-// const watchJSX = watch('./src/**/*.jsx');
-// watchJSX.on('change', function (pathL, stats) {
-//   console.log(`File, ${pathL} change`);
-//   let dirname = path.parse(pathL).dir.replace('src\\', '');
-//   gulp
-//     .src(pathL, { base: process.cwd() })
-//     .pipe(babel({ presets: ['@babel/preset-env', '@babel/preset-react'] }))
-//     .pipe(
-//       rename({
-//         dirname: dirname,
-//         basename: 'index',
-//         extname: '.js',
-//       })
-//     )
-//     .pipe(gulp.dest('./dist/'));
-// });
-
 const watchJSX = watch('./src/**/*.jsx');
 watchJSX.on('change', async function (pathL, stats) {
   console.log(`File, ${pathL} change`);
@@ -102,24 +84,5 @@ watchHTML.on('change', function (pathL, stats) {
     )
     .pipe(gulp.dest('./dist/'));
 });
-
-// function buildJSX() {
-//   return browserifyJs({
-//     entries: ['src/ios-switch/index.jsx'],
-//     debug: true,
-//     transform: [
-//       babelify.configure({
-//         presets: ['@babel/preset-env', '@babel/preset-react'],
-//       }),
-//     ],
-//   })
-//     .bundle()
-//     .pipe(stream('index.js'))
-//     .pipe(buffer())
-//     .pipe(uglify())
-//     .pipe(gulp.dest('./dist'));
-// }
-
-// exports.buildJSX = gulp.series(buildJSX);
 
 exports.default = () => {};
