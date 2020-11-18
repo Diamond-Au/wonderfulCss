@@ -1,12 +1,9 @@
 const gulp = require('gulp');
 const sass = require('gulp-sass');
 const Fiber = require('fibers');
-const concat = require('gulp-concat');
 const autoprefixer = require('autoprefixer');
-const webserver = require('gulp-webserver');
 const postcss = require('gulp-postcss');
 const { watch } = require('gulp');
-const babel = require('gulp-babel');
 const htmlReplace = require('gulp-html-replace');
 const rename = require('gulp-rename');
 const path = require('path');
@@ -17,10 +14,10 @@ const buffer = require('vinyl-buffer');
 const uglify = require('gulp-uglify');
 sass.compiler = require('node-sass');
 
-// 编译scss文件
-function sassT() {
-  return gulp
-    .src('./src/**/*.scss')
+// sass 编译
+function sassCompile(path, dirname) {
+  gulp
+    .src(path)
     .pipe(
       sass({ fiber: Fiber, outputStyle: 'compressed' }).on(
         'error',
@@ -28,15 +25,38 @@ function sassT() {
       )
     )
     .pipe(postcss([autoprefixer()]))
+    .pipe(
+      rename({
+        dirname,
+        basename: 'index',
+        extname: '.css',
+      })
+    )
     .pipe(gulp.dest('./dist/'));
 }
-
-const watchJSX = watch('./src/**/*.jsx');
-watchJSX.on('change', async function (pathL, stats) {
-  console.log(`File, ${pathL} change`);
+// html编译
+function htmlCompile(path, dirname) {
+  gulp
+    .src(path)
+    .pipe(
+      htmlReplace({
+        css: './index.css',
+        js: './index.js',
+      })
+    )
+    .pipe(
+      rename({
+        dirname,
+        basename: 'index',
+        extname: '.html',
+      })
+    )
+    .pipe(gulp.dest('./dist/'));
+}
+// jsx编译
+function jsxCompile(path, dirname) {
   let templatePath = [];
-  templatePath.push(pathL);
-  let dirname = path.parse(pathL).dir.replace('src\\', '');
+  templatePath.push(path);
   browserifyJs({
     entries: templatePath,
     debug: true,
@@ -58,31 +78,28 @@ watchJSX.on('change', async function (pathL, stats) {
       })
     )
     .pipe(gulp.dest('./dist/'));
-  console.log('jsx finish');
+}
+
+const watcher = watch(
+  ['./src/**/*.scss', './src/**/*.html', './src/**/*.jsx'],
+  {}
+);
+watcher.on('change', function (pathL, stats) {
+  console.log(`File, ${pathL} change`);
+  let pathName = path.parse(pathL);
+  let dirname = pathName.dir.replace('src\\', '');
+  let extname = pathName.ext;
+  if (extname === '.html') {
+    htmlCompile(pathL, dirname);
+  } else if (extname === '.scss') {
+    sassCompile(pathL, dirname);
+  } else if (extname === '.jsx') {
+    jsxCompile(pathL, dirname);
+  }
 });
 
-// 监视html文件
-const watchHTML = watch('./src/**/*.html');
-watchHTML.on('change', function (pathL, stats) {
-  console.log(`File, ${pathL} change`);
-  let dirname = path.parse(pathL).dir.replace('src\\', '');
-  console.log(dirname);
-  gulp
-    .src(pathL)
-    .pipe(
-      htmlReplace({
-        css: './index.css',
-        js: './index.js',
-      })
-    )
-    .pipe(
-      rename({
-        dirname: dirname,
-        basename: 'index',
-        extname: '.html',
-      })
-    )
-    .pipe(gulp.dest('./dist/'));
+watcher.on('add', function (pathL, stats) {
+  console.log(`File, ${pathL} add`);
 });
 
 exports.default = () => {};
