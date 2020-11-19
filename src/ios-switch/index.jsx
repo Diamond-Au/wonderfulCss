@@ -1,7 +1,6 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
 function App() {
-  return <div> t1hisis11111111s1</div>;
+  return <div> jsx test hh</div>;
 }
-
-ReactDom.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
