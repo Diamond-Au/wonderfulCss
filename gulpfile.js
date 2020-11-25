@@ -1,9 +1,9 @@
 const gulp = require("gulp");
+const { watch } = require("gulp");
 const sass = require("gulp-sass");
 const Fiber = require("fibers");
 const autoprefixer = require("autoprefixer");
 const postcss = require("gulp-postcss");
-const { watch } = require("gulp");
 const htmlReplace = require("gulp-html-replace");
 const rename = require("gulp-rename");
 const path = require("path");
@@ -101,10 +101,29 @@ watcher.on("change", function (pathL, stats) {
   }
 });
 
-watcher.on("add", function (pathL, stats) {
-  console.log(`File, ${pathL} add`);
+const RouterWatch = watch("./src/*");
+RouterWatch.on("addDir", function (router) {
+  console.log(`${router} change`);
+  const { name } = path.parse(router);
+  gulp
+    .src("./template/index1.ejs")
+    .pipe(
+      ejs({
+        name,
+      })
+    )
+    .pipe(
+      rename({
+        basename: "index",
+        extname: ".html",
+      })
+    )
+    .pipe(gulp.dest(router));
+  htmlCompile(`./${router}/index.html`, name);
+  buildRouter();
 });
 
+// 生成路由
 function buildRouter() {
   let routers = fs.readdirSync("./src");
   routers = routers.map((router) => {
@@ -137,8 +156,9 @@ function buildRouter() {
 function server() {
   return gulp.src("./dist").pipe(
     webserver({
-      open: true,
+      open: false,
       fallback: "index.html",
+      allowEmpty: true,
       livereload: {
         enable: true,
         filter: function (fileName) {
@@ -153,7 +173,11 @@ function server() {
   );
 }
 
-exports.buildRouter = buildRouter;
-exports.server = server;
+function build() {
+  buildRouter();
+  htmlCompile("./src/ios-switch/index.html", "ios-switch");
+  sassCompile("./src/ios-switch/index.scss", "ios-switch");
+  jsxCompile("./src/ios-switch/index.jsx", "ios-switch");
+}
 
-exports.default = () => {};
+exports.default = gulp.parallel(server, build);
