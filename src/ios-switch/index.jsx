@@ -1,6 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-function App() {
-  return <div> jsx test hh</div>;
+function App(){
+  return (
+    <div>this is a test</div>
+  )
 }
-ReactDOM.render(<App />, document.getElementById('root'));
+
+ReactDOM.render(App(), document.querySelector("#root"))
