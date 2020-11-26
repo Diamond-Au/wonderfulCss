@@ -12,7 +12,6 @@ const babelify = require("babelify");
 const stream = require("vinyl-source-stream");
 const buffer = require("vinyl-buffer");
 const uglify = require("gulp-uglify");
-const babel = require("gulp-babel");
 const ejs = require("gulp-ejs");
 const fs = require("fs");
 const webserver = require("gulp-webserver");
@@ -162,24 +161,26 @@ function buildRouter() {
 
 function server() {
   build();
-  setTimeout(() => {}, 1000);
-  return gulp.src("./dist").pipe(
-    webserver({
-      open: true,
-      fallback: "index.html",
-      allowEmpty: true,
-      livereload: {
-        enable: true,
-        filter: function (fileName) {
-          if (fileName === "index.html") {
-            return true;
-          } else {
-            return false;
-          }
+  // 考虑到 build的构建没有超过 100ms 延时1000ms 确保 build()构建完毕(可能会出错,但是没有想到更好地办法)
+  setTimeout(() => {
+    return gulp.src("./dist").pipe(
+      webserver({
+        open: true,
+        fallback: "index.html",
+        allowEmpty: true,
+        livereload: {
+          enable: true,
+          filter: function (fileName) {
+            if (fileName === "index.html") {
+              return true;
+            } else {
+              return false;
+            }
+          },
         },
-      },
-    })
-  );
+      })
+    );
+  }, 1000);
 }
 
 function build() {
