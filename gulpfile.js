@@ -101,6 +101,15 @@ watcher.on("change", function (pathL, stats) {
   }
 });
 
+watcher.on("add", function (router) {
+  console.log(router, "add watcher");
+  const { dir } = path.parse(router);
+  const res = dir.split("\\");
+
+  htmlCompile(router, res[1]);
+  buildRouter();
+});
+
 const RouterWatch = watch("./src/*");
 RouterWatch.on("addDir", function (router) {
   console.log(`${router} change`);
@@ -119,8 +128,6 @@ RouterWatch.on("addDir", function (router) {
       })
     )
     .pipe(gulp.dest(router));
-  htmlCompile(`./${router}/index.html`, name);
-  buildRouter();
 });
 
 // 生成路由
@@ -139,7 +146,7 @@ function buildRouter() {
   });
   routers = routers.filter((v) => v !== undefined);
   return gulp
-    .src("./src/index.ejs")
+    .src("./template/index.ejs")
     .pipe(
       ejs({
         routes: routers,
@@ -154,9 +161,11 @@ function buildRouter() {
 }
 
 function server() {
+  build();
+  setTimeout(() => {}, 1000);
   return gulp.src("./dist").pipe(
     webserver({
-      open: false,
+      open: true,
       fallback: "index.html",
       allowEmpty: true,
       livereload: {
@@ -180,4 +189,5 @@ function build() {
   jsxCompile("./src/ios-switch/index.jsx", "ios-switch");
 }
 
-exports.default = gulp.parallel(server, build);
+// exports.build = build;
+exports.default = server;
