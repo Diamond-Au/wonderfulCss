@@ -1,5 +1,5 @@
 const gulp = require("gulp");
-const { watch } = require("gulp");
+const { watch } = gulp;
 const sass = require("gulp-sass");
 const Fiber = require("fibers");
 const autoprefixer = require("autoprefixer");
@@ -88,25 +88,28 @@ const watcher = watch(
 );
 watcher.on("change", function (pathL, stats) {
   console.log(`File, ${pathL} change`);
-  let pathName = path.parse(pathL);
-  let dirname = pathName.dir.replace("src\\", "");
-  let extname = pathName.ext;
+  let { pathName, dirname, extname } = getExtName(pathL);
   if (extname === ".html") {
+    console.log("htmlCompile");
     htmlCompile(pathL, dirname);
   } else if (extname === ".scss") {
+    console.log("sassCompile");
     sassCompile(pathL, dirname);
   } else if (extname === ".jsx") {
+    console.log("jsxCompile");
     jsxCompile(pathL, dirname);
   }
 });
 
 watcher.on("add", function (router) {
   console.log(router, "add watcher");
-  const { dir } = path.parse(router);
-  const res = dir.split("\\");
-
-  htmlCompile(router, res[1]);
-  buildRouter();
+  let { extname } = getExtName(router);
+  if (extname === ".html") {
+    const { dir } = path.parse(router);
+    const res = dir.split("\\");
+    htmlCompile(router, res[1]);
+    buildRouter();
+  }
 });
 
 const RouterWatch = watch("./src/*");
@@ -189,6 +192,17 @@ function build() {
   htmlCompile("./src/ios-switch/index.html", "ios-switch");
   sassCompile("./src/ios-switch/index.scss", "ios-switch");
   jsxCompile("./src/ios-switch/index.jsx", "ios-switch");
+}
+
+function getExtName(router) {
+  let pathName = path.parse(router);
+  let dirname = pathName.dir.replace("src\\", "");
+  let extname = pathName.ext;
+  return {
+    pathName,
+    dirname,
+    extname,
+  };
 }
 
 // exports.build = build;
