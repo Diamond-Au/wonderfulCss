@@ -165,6 +165,7 @@ function server() {
   setTimeout(() => {
     return gulp.src("./dist").pipe(
       webserver({
+        port: 8001,
         open: true,
         fallback: "index.html",
         allowEmpty: true,
