@@ -1,15 +1,15 @@
-### gulp learn
+### wonderfulCss
 
-> 自己学习 gulp，随意配置的
+### 使用 gulp 生成基础目录
 
-### 支持的功能
+### 功能
 
+- [x] ejs
+- [x] 模块化
 - [x] react 语法
 - [x] scss 压缩
 - [x] html 引用
 - [x] 文件监控
-- [x] 模块化
-- [x] ejs
 - [x] 自动生成导航文件
 
 ### 使用
