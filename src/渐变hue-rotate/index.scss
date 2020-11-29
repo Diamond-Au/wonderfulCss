@@ -1,0 +1,13 @@
+.hue {
+  width: 300px;
+  height: 300px;
+  margin: auto;
+  background: linear-gradient(45deg, #ffc107, deeppink, #9c27b0);
+  animation: hueRotate 10s infinite alternate;
+}
+
+@keyframes hueRotate {
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
